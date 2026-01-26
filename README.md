@@ -1,9 +1,9 @@
-# SimpleMD Pro - Zen UI 📝
+# SimpleNotesMD 📝
 
-A clean, distraction-free Markdown editor with real-time preview, folder management, and embedded multimedia support.
+A clean, distraction-free Markdown editor with real-time preview, folder management, import,export and embedded multimedia support.
 
 ## 🚀 Live Demo
-**[Insert your GitHub Pages Link Here]**
+**[[Simple Notes MD Live]](https://simplenotesmd.pages.dev/)**
 
 ## ✨ Features
 - **Zen UI:** A minimal interface designed for focus.
@@ -23,4 +23,5 @@ A clean, distraction-free Markdown editor with real-time preview, folder managem
 Your notes are **yours**. Because this app runs entirely in your browser and uses IndexedDB, no data is ever sent to a server. 
 
 ---
+
 *Created with ❤️ for the productivity community.*
