@@ -279,3 +279,18 @@ const folderSelect = document.getElementById('folderSelect');
 folderSelect.innerHTML = ["General", "Work", "Personal"].map(f => `<option value="${f}">${f}</option>`).join('');
 
 function updateNoteFolder() { saveCurrentNote(); }
+
+// Dynamically load GA script
+const gaScript = document.createElement('script');
+gaScript.async = true;
+gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-X7EKF97C32';
+document.head.appendChild(gaScript);
+
+// GA config
+window.dataLayer = window.dataLayer || [];
+function gtag() {
+  dataLayer.push(arguments);
+}
+
+gtag('js', new Date());
+gtag('config', 'G-X7EKF97C32');
