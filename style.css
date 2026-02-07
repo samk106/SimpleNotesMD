@@ -34,11 +34,98 @@ mark { background-color: var(--highlight); color: inherit; padding: 0 2px; borde
 #searchBar { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 13px; box-sizing: border-box; }
 .list-container { flex: 1; overflow-y: auto; padding: 10px; }
 
-/* Sidebar List Items */
-.folder-header { padding: 12px 8px 4px 8px; font-weight: 700; font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
-.note-item { padding: 8px 12px; cursor: pointer; border-radius: 6px; font-size: 13px; margin: 1px 0; border-left: 3px solid transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.note-item:hover { background: var(--hover); }
-.note-item.active { background: white; border-left-color: var(--accent); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+/* Sidebar List Items with Delete Button */
+.note-item { 
+    padding: 8px 12px; 
+    cursor: pointer; 
+    border-radius: 6px; 
+    font-size: 13px; 
+    margin: 1px 0; 
+    border-left: 3px solid transparent; 
+    position: relative;
+}
+
+.note-item:hover { 
+    background: var(--hover); 
+}
+
+.note-item.active { 
+    background: white; 
+    border-left-color: var(--accent); 
+    font-weight: 500; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+}
+
+.note-item-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.note-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.note-delete-btn {
+    opacity: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    color: #9ca3af;
+}
+
+.note-item:hover .note-delete-btn {
+    opacity: 1;
+}
+
+.note-delete-btn:hover {
+    background: #fee2e2;
+    color: var(--danger);
+}
+
+/* Tooltip for note preview */
+.note-item[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: 10px;
+    padding: 12px 16px;
+    background: #1f2937;
+    color: #f9fafb;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    max-width: 300px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    pointer-events: none;
+}
+
+.note-item[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 12px;
+    margin-left: 2px;
+    border: 6px solid transparent;
+    border-right-color: #1f2937;
+    z-index: 1001;
+    pointer-events: none;
+}
 
 /* 3. The Sidebar Toggle Button */
 #sidebarToggle {
@@ -73,32 +160,209 @@ mark { background-color: var(--highlight); color: inherit; padding: 0 2px; borde
     min-width: 0; position: relative; background: white; 
 }
 
-header { padding: 0 24px; height: 56px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: white; z-index: 10; }
+header { 
+    padding: 0 24px; 
+    height: 56px; 
+    border-bottom: 1px solid var(--border); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: white; 
+    z-index: 10; 
+}
 
 .header-actions { display: flex; align-items: center; gap: 4px; }
+
 .icon-btn { 
-    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; 
-    border: none; background: transparent; cursor: pointer; border-radius: 6px; 
-    font-size: 18px; transition: background 0.2s; 
+    width: 36px; 
+    height: 36px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    border: none; 
+    background: transparent; 
+    cursor: pointer; 
+    border-radius: 6px; 
+    transition: background 0.2s; 
+    color: var(--text);
 }
-.icon-btn:hover { background: var(--hover); }
-.icon-btn.danger:hover { background: #fee2e2; }
 
-/* 5. Workspace Grid */
+.icon-btn:hover { 
+    background: var(--hover); 
+}
+
+.icon-btn.danger:hover { 
+    background: #fee2e2; 
+    color: var(--danger);
+}
+
+/* 5. Markdown Toolbar */
+.markdown-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 16px;
+    background: #fafafa;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.toolbar-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    color: #4b5563;
+}
+
+.toolbar-btn:hover {
+    background: #e5e7eb;
+    color: var(--accent);
+}
+
+.toolbar-btn:active {
+    transform: scale(0.95);
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    margin: 0 6px;
+}
+
+/* 6. Workspace Grid */
 .workspace { 
-    flex: 1; display: grid; grid-template-columns: 1fr 6px 1fr; 
-    overflow: hidden; background: var(--border); 
+    flex: 1; 
+    display: grid; 
+    grid-template-columns: 1fr 6px 1fr; 
+    overflow: hidden; 
+    background: var(--border); 
 }
 
-#editor { border: none; padding: 30px; font-family: 'Fira Code', monospace; font-size: 15px; resize: none; outline: none; line-height: 1.6; background: white; }
-.resizer { cursor: col-resize; background: var(--sidebar); position: relative; width: 6px; }
-.resizer::after { content: ""; position: absolute; left: 2px; top: 50%; height: 40px; width: 2px; background: #d1d5db; transform: translateY(-50%); border-radius: 2px; }
-#preview { padding: 30px; overflow-y: auto; background: white; line-height: 1.6; font-size: 16px; }
+#editor { 
+    border: none; 
+    padding: 30px; 
+    font-family: 'Fira Code', 'Courier New', monospace; 
+    font-size: 15px; 
+    resize: none; 
+    outline: none; 
+    line-height: 1.6; 
+    background: white; 
+}
 
-/* 6. Library View & Tables */
-#libraryView { position: absolute; inset: 0; background: white; z-index: 40; display: none; flex-direction: column; padding: 40px; box-sizing: border-box; overflow-y: auto; }
-.lib-table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
-.lib-table th { text-align: left; padding: 12px; border-bottom: 2px solid var(--border); font-size: 13px; color: #6b7280; cursor: pointer; }
-.lib-table td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tag-pill { background: #eff6ff; color: #2563eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
-select.btn-folder { border: 1px solid var(--border); background: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; cursor: pointer; outline: none; }
+.resizer { 
+    cursor: col-resize; 
+    background: var(--sidebar); 
+    position: relative; 
+    width: 6px; 
+}
+
+.resizer::after { 
+    content: ""; 
+    position: absolute; 
+    left: 2px; 
+    top: 50%; 
+    height: 40px; 
+    width: 2px; 
+    background: #d1d5db; 
+    transform: translateY(-50%); 
+    border-radius: 2px; 
+}
+
+#preview { 
+    padding: 30px; 
+    overflow-y: auto; 
+    background: white; 
+    line-height: 1.6; 
+    font-size: 16px; 
+}
+
+/* Preview Markdown Styles */
+#preview h1 { font-size: 2em; margin-top: 0.5em; margin-bottom: 0.5em; font-weight: 700; }
+#preview h2 { font-size: 1.5em; margin-top: 0.5em; margin-bottom: 0.5em; font-weight: 700; }
+#preview h3 { font-size: 1.25em; margin-top: 0.5em; margin-bottom: 0.5em; font-weight: 600; }
+#preview code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; }
+#preview pre { background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 8px; overflow-x: auto; }
+#preview pre code { background: transparent; padding: 0; }
+#preview blockquote { border-left: 4px solid var(--border); padding-left: 16px; margin: 16px 0; color: #6b7280; }
+#preview table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+#preview table th { background: #f9fafb; padding: 12px; border: 1px solid var(--border); text-align: left; font-weight: 600; }
+#preview table td { padding: 12px; border: 1px solid var(--border); }
+#preview img { max-width: 100%; height: auto; border-radius: 8px; }
+#preview a { color: #2563eb; text-decoration: none; }
+#preview a:hover { text-decoration: underline; }
+#preview ul, #preview ol { padding-left: 24px; }
+#preview li { margin: 4px 0; }
+
+/* 7. Library View & Tables */
+#libraryView { 
+    position: absolute; 
+    inset: 0; 
+    background: white; 
+    z-index: 40; 
+    display: none; 
+    flex-direction: column; 
+    padding: 40px; 
+    box-sizing: border-box; 
+    overflow-y: auto; 
+}
+
+.lib-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+    table-layout: fixed; 
+}
+
+.lib-table th { 
+    text-align: left; 
+    padding: 12px; 
+    border-bottom: 2px solid var(--border); 
+    font-size: 13px; 
+    color: #6b7280; 
+    cursor: pointer; 
+}
+
+.lib-table td { 
+    padding: 14px 12px; 
+    border-bottom: 1px solid var(--border); 
+    font-size: 14px; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+}
+
+.tag-pill { 
+    background: #eff6ff; 
+    color: #2563eb; 
+    padding: 2px 8px; 
+    border-radius: 4px; 
+    font-size: 11px; 
+    margin-right: 4px; 
+}
+
+/* 8. Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}

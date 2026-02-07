@@ -68,6 +68,7 @@ function saveCurrentNote() {
     const note = { 
         id: currentNoteId, content, title: meta.title, 
         tags: meta.tags, summary: meta.summary, 
+        folder: document.getElementById('folderSelect').value, 
         updated: Date.now() 
     };
     db.transaction("notes", "readwrite").objectStore("notes").put(note);
@@ -76,30 +77,12 @@ function saveCurrentNote() {
     renderSidebar();
 }
 
-function deleteNote(noteId) {
-    if (!confirm("Delete this note?")) return;
-    db.transaction("notes", "readwrite").objectStore("notes").delete(noteId).onsuccess = () => { 
-        if (currentNoteId === noteId) {
-            currentNoteId = null;
-            loadLastNote();
-        }
+function deleteIndividualNote() {
+    if (!currentNoteId || !confirm("Delete this note?")) return;
+    db.transaction("notes", "readwrite").objectStore("notes").delete(currentNoteId).onsuccess = () => { 
+        currentNoteId = null; 
+        loadLastNote(); 
         renderSidebar(); 
-    };
-}
-
-function deleteAllNotes() {
-    if (!confirm("Delete ALL notes? This action cannot be undone!")) return;
-    const tx = db.transaction("notes", "readwrite");
-    const store = tx.objectStore("notes");
-    const clearRequest = store.clear();
-    
-    clearRequest.onsuccess = () => {
-        currentNoteId = null;
-        document.getElementById('editor').value = '';
-        document.getElementById('preview').innerHTML = '';
-        document.getElementById('displayTitle').innerText = 'Welcome';
-        renderSidebar();
-        alert("All notes have been deleted.");
     };
 }
 
@@ -109,6 +92,7 @@ function loadNote(id) {
         if (!n) return;
         currentNoteId = id;
         document.getElementById('editor').value = n.content;
+        document.getElementById('folderSelect').value = n.folder || "General";
         document.getElementById('displayTitle').innerText = n.title;
         updatePreview();
         renderSidebar();
@@ -120,7 +104,7 @@ async function createNewNote() {
     const note = { 
         id, title: "New Note", 
         content: "---\ntitle: New Note\ntags: \n---\n", 
-        updated: id, tags: [], summary: "" 
+        folder: "General", updated: id, tags: [], summary: "" 
     };
     db.transaction("notes", "readwrite").objectStore("notes").add(note).onsuccess = () => loadNote(id);
 }
@@ -130,37 +114,19 @@ function renderSidebar() {
     db.transaction("notes").objectStore("notes").getAll().onsuccess = e => {
         const container = document.getElementById('noteList');
         container.innerHTML = '';
-        
-        const filtered = e.target.result.filter(n => n.title.toLowerCase().includes(query));
-        filtered.sort((a,b) => b.updated - a.updated).forEach(n => {
-            const item = document.createElement('div');
-            item.className = `note-item ${n.id === currentNoteId ? 'active' : ''}`;
-            
-            // Create note title and delete button container
-            const noteContent = document.createElement('div');
-            noteContent.className = 'note-item-content';
-            noteContent.innerHTML = `
-                <span class="note-title">${n.title}</span>
-                <button class="note-delete-btn" onclick="event.stopPropagation(); deleteNote(${n.id})" title="Delete note">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            `;
-            
-            // Add tooltip with note preview
-            const preview = n.content.replace(/^---[\s\S]*?---/, '').trim().substring(0, 200);
-            item.setAttribute('data-tooltip', preview);
-            
-            item.appendChild(noteContent);
-            item.onclick = () => loadNote(n.id);
-            container.appendChild(item);
+        ["General", "Work", "Personal"].forEach(f => {
+            const group = document.createElement('div');
+            group.innerHTML = `<div class="folder-header">${f}</div>`;
+            const filtered = e.target.result.filter(n => (n.folder||"General") === f && n.title.toLowerCase().includes(query));
+            filtered.sort((a,b) => b.updated - a.updated).forEach(n => {
+                const item = document.createElement('div');
+                item.className = `note-item ${n.id === currentNoteId ? 'active' : ''}`;
+                item.innerText = n.title;
+                item.onclick = () => loadNote(n.id);
+                group.appendChild(item);
+            });
+            if (filtered.length > 0 || !query) container.appendChild(group);
         });
-        
-        if (filtered.length === 0) {
-            container.innerHTML = '<div style="padding: 20px; text-align: center; color: #9ca3af; font-size: 13px;">No notes found</div>';
-        }
     };
 }
 
@@ -278,7 +244,7 @@ async function importBackup(input) {
             notes.push({ 
                 id: Date.now() + Math.random(), content, 
                 title: meta.title, tags: meta.tags, 
-                summary: meta.summary,
+                summary: meta.summary, folder: "General", 
                 updated: Date.now() 
             });
         }
@@ -301,86 +267,6 @@ async function exportBackup() {
     };
 }
 
-// Markdown Toolbar Functions
-function insertMarkdown(type) {
-    const editor = document.getElementById('editor');
-    const start = editor.selectionStart;
-    const end = editor.selectionEnd;
-    const selectedText = editor.value.substring(start, end);
-    const beforeText = editor.value.substring(0, start);
-    const afterText = editor.value.substring(end);
-    
-    let newText = '';
-    let cursorOffset = 0;
-    
-    switch(type) {
-        case 'h1':
-            newText = selectedText ? `# ${selectedText}` : '# ';
-            cursorOffset = selectedText ? newText.length : 2;
-            break;
-        case 'bold':
-            newText = selectedText ? `**${selectedText}**` : '****';
-            cursorOffset = selectedText ? newText.length : 2;
-            break;
-        case 'italic':
-            newText = selectedText ? `*${selectedText}*` : '**';
-            cursorOffset = selectedText ? newText.length : 1;
-            break;
-        case 'strikethrough':
-            newText = selectedText ? `~~${selectedText}~~` : '~~~~';
-            cursorOffset = selectedText ? newText.length : 2;
-            break;
-        case 'hr':
-            newText = '\n---\n';
-            cursorOffset = newText.length;
-            break;
-        case 'quote':
-            newText = selectedText ? `> ${selectedText}` : '> ';
-            cursorOffset = selectedText ? newText.length : 2;
-            break;
-        case 'ul':
-            newText = selectedText ? `- ${selectedText}` : '- ';
-            cursorOffset = selectedText ? newText.length : 2;
-            break;
-        case 'ol':
-            newText = selectedText ? `1. ${selectedText}` : '1. ';
-            cursorOffset = selectedText ? newText.length : 3;
-            break;
-        case 'checkbox':
-            newText = selectedText ? `- [ ] ${selectedText}` : '- [ ] ';
-            cursorOffset = selectedText ? newText.length : 6;
-            break;
-        case 'table':
-            newText = '\n| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |\n';
-            cursorOffset = newText.length;
-            break;
-        case 'image':
-            newText = selectedText ? `![alt text](${selectedText})` : '![alt text](url)';
-            cursorOffset = selectedText ? newText.length : 12;
-            break;
-        case 'link':
-            newText = selectedText ? `[${selectedText}](url)` : '[text](url)';
-            cursorOffset = selectedText ? newText.length - 4 : 1;
-            break;
-        case 'code':
-            newText = selectedText ? `\`${selectedText}\`` : '``';
-            cursorOffset = selectedText ? newText.length : 1;
-            break;
-        case 'codeblock':
-            newText = selectedText ? `\`\`\`\n${selectedText}\n\`\`\`` : '\`\`\`\n\n\`\`\`';
-            cursorOffset = selectedText ? newText.length - 3 : 4;
-            break;
-    }
-    
-    editor.value = beforeText + newText + afterText;
-    editor.focus();
-    editor.setSelectionRange(start + cursorOffset, start + cursorOffset);
-    
-    // Trigger update
-    updatePreview();
-    saveCurrentNote();
-}
-
 // Event Listeners
 let debounce;
 document.getElementById('editor').addEventListener('input', () => { 
@@ -388,6 +274,11 @@ document.getElementById('editor').addEventListener('input', () => {
     clearTimeout(debounce); 
     debounce = setTimeout(saveCurrentNote, 500); 
 });
+
+const folderSelect = document.getElementById('folderSelect');
+folderSelect.innerHTML = ["General", "Work", "Personal"].map(f => `<option value="${f}">${f}</option>`).join('');
+
+function updateNoteFolder() { saveCurrentNote(); }
 
 // Dynamically load GA script
 const gaScript = document.createElement('script');
