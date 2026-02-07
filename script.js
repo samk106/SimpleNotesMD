@@ -178,7 +178,7 @@ function renderSidebar() {
             const noteContent = document.createElement('div');
             noteContent.className = 'note-item-content';
             noteContent.innerHTML = `
-                <span class="note-title">${n.title}</span>
+                <span class="note-title" data-title="${n.title}">${n.title}</span>
                 <button class="note-delete-btn" onclick="event.stopPropagation(); deleteNote(${n.id})" title="Delete note">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>

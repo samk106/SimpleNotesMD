@@ -16,17 +16,17 @@
 /* Light theme */
 body.light-theme {
     --bg: #ffffff;
-    --sidebar: #f5f5f7;
-    --border: #d1d1d6;
-    --accent: #007aff;
-    --text: #1d1d1f;
-    --text-secondary: #86868b;
-    --hover: #e8e8ed;
-    --danger: #ff3b30;
-    --highlight: #fff59d;
+    --sidebar: #f7f7f8;
+    --border: #e5e7eb;
+    --accent: #111827;
+    --text: #374151;
+    --text-secondary: #6b7280;
+    --hover: #f3f4f6;
+    --danger: #ef4444;
+    --highlight: #fef08a;
     --editor-bg: #ffffff;
-    --preview-bg: #fafafa;
-    --toolbar-bg: #f5f5f7;
+    --preview-bg: #ffffff;
+    --toolbar-bg: #fafafa;
 }
 
 /* 1. Reset & Base Layout */
@@ -317,13 +317,69 @@ header {
 #preview li { margin: 4px 0; }
 
 /* Light theme overrides for code */
-body.light-theme #preview code { background: #f5f5f7; color: #c7254e; }
-body.light-theme #preview pre { background: #f5f5f7; color: #1d1d1f; border: 1px solid var(--border); }
-body.light-theme #preview pre code { color: #1d1d1f; }
+body.light-theme #preview code { background: #f3f4f6; color: #1f2937; }
+body.light-theme #preview pre { background: #1f2937; color: #f9fafb; border: 1px solid var(--border); }
+body.light-theme #preview pre code { color: #f9fafb; }
 
 /* Note item shadow adjustment for light theme */
 body.light-theme .note-item.active {
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Tooltip for long note titles */
+.note-title {
+    position: relative;
+}
+
+.note-item:hover .note-title::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 10px;
+    padding: 8px 12px;
+    background: #1f2937;
+    color: #f9fafb;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeIn 0.2s ease-in-out 0.5s forwards;
+}
+
+.note-item:hover .note-title::before {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 2px;
+    border: 6px solid transparent;
+    border-right-color: #1f2937;
+    z-index: 1001;
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeIn 0.2s ease-in-out 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+/* Light theme tooltip */
+body.light-theme .note-item:hover .note-title::after {
+    background: #1f2937;
+    color: #f9fafb;
+}
+
+body.light-theme .note-item:hover .note-title::before {
+    border-right-color: #1f2937;
 }
 
 /* 7. Library View & Tables */
