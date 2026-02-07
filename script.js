@@ -19,6 +19,44 @@ if (dragBar) {
 
 function resetSplit() { workspace.style.gridTemplateColumns = "1fr 6px 1fr"; }
 
+// Theme Toggle Function
+function toggleTheme() {
+    const body = document.body;
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+    
+    body.classList.toggle('light-theme');
+    
+    // Toggle icon visibility
+    if (body.classList.contains('light-theme')) {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+        localStorage.setItem('theme', 'light');
+    } else {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+        localStorage.setItem('theme', 'dark');
+    }
+}
+
+// Load saved theme on page load
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+    
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        if (sunIcon && moonIcon) {
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+        }
+    }
+}
+
+// Call loadTheme after DOM is ready
+document.addEventListener('DOMContentLoaded', loadTheme);
+
 // Database initialization
 const request = indexedDB.open("SimpleMD_DB", 1);
 request.onsuccess = e => { 
