@@ -149,10 +149,6 @@ function renderSidebar() {
                 </button>
             `;
             
-            // Add tooltip with note preview
-            const preview = n.content.replace(/^---[\s\S]*?---/, '').trim().substring(0, 200);
-            item.setAttribute('data-tooltip', preview);
-            
             item.appendChild(noteContent);
             item.onclick = () => loadNote(n.id);
             container.appendChild(item);
