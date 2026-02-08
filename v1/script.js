@@ -61,12 +61,64 @@ document.addEventListener('DOMContentLoaded', loadTheme);
 const request = indexedDB.open("SimpleMD_DB", 1);
 request.onsuccess = e => { 
     db = e.target.result; 
-    renderSidebar(); 
-    loadLastNote(); 
+    checkAndCreateDefaultNote();
 };
 request.onupgradeneeded = e => { 
     e.target.result.createObjectStore("notes", { keyPath: "id" }); 
 };
+
+// Check if database is empty and create default note
+function checkAndCreateDefaultNote() {
+    const transaction = db.transaction("notes", "readonly");
+    const store = transaction.objectStore("notes");
+    const countRequest = store.count();
+    
+    countRequest.onsuccess = () => {
+        if (countRequest.result === 0) {
+            // Database is empty, create a default welcome note
+            const id = Date.now();
+            const defaultNote = {
+                id,
+                title: "Welcome to SimpleMD",
+                content: `---
+title: Welcome to SimpleMD
+tags: welcome, getting-started
+---
+
+# Welcome to SimpleMD! 👋
+
+This is your markdown editor. Start writing your notes here.
+
+## Features
+- **Markdown Support**: Write in markdown and see live preview
+- **Multiple Notes**: Create and organize multiple notes
+- **Dark/Light Mode**: Toggle between themes
+- **Export/Import**: Backup your notes as ZIP files
+
+## Quick Tips
+- Use the toolbar above to format your text
+- Click **+ New Note** to create a new note
+- Your notes are automatically saved
+- Toggle dark/light mode with the sun/moon icon
+
+Happy writing! ✨`,
+                tags: ["welcome", "getting-started"],
+                summary: "This is your markdown editor. Start writing your notes here.",
+                updated: id
+            };
+            
+            const addTransaction = db.transaction("notes", "readwrite");
+            addTransaction.objectStore("notes").add(defaultNote).onsuccess = () => {
+                loadNote(id);
+                renderSidebar();
+            };
+        } else {
+            // Load the most recent note
+            renderSidebar();
+            loadLastNote();
+        }
+    };
+}
 
 // Meta Parsing & Text Utils
 function parseMeta(content) {
