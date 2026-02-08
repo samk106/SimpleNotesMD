@@ -29,18 +29,18 @@ function handleResize(clientX, clientY) {
     const isMobile = window.innerWidth <= 768;
     
     if (isMobile) {
-        // Vertical resize for mobile
+        // Vertical resize for mobile with 5%-95% constraints
         let perc = ((clientY - rect.top) / rect.height) * 100;
-        perc = Math.max(20, Math.min(80, perc));
+        perc = Math.max(5, Math.min(95, perc));
         
         const editor = document.getElementById('editor');
         const preview = document.getElementById('preview');
         editor.style.flex = `0 0 ${perc}%`;
         preview.style.flex = `0 0 ${100 - perc}%`;
     } else {
-        // Horizontal resize for desktop
+        // Horizontal resize for desktop with 5%-95% constraints
         let perc = ((clientX - rect.left) / rect.width) * 100;
-        perc = Math.max(15, Math.min(85, perc));
+        perc = Math.max(5, Math.min(95, perc));
         workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
     }
 }
@@ -61,37 +61,79 @@ function resetSplit() {
 // Theme Toggle Function
 function toggleTheme() {
     const body = document.body;
-    const sunIcon = document.querySelector('.sun-icon');
-    const moonIcon = document.querySelector('.moon-icon');
+    const sunIcons = document.querySelectorAll('.theme-icon-sun');
+    const moonIcons = document.querySelectorAll('.theme-icon-moon');
+    const themeText = document.querySelector('.theme-text');
     
     body.classList.toggle('light-theme');
     
     // Toggle icon visibility
     if (body.classList.contains('light-theme')) {
-        sunIcon.style.display = 'none';
-        moonIcon.style.display = 'block';
+        sunIcons.forEach(icon => icon.style.display = 'none');
+        moonIcons.forEach(icon => icon.style.display = 'block');
+        if (themeText) themeText.textContent = 'Light Mode';
         localStorage.setItem('theme', 'light');
     } else {
-        sunIcon.style.display = 'block';
-        moonIcon.style.display = 'none';
+        sunIcons.forEach(icon => icon.style.display = 'block');
+        moonIcons.forEach(icon => icon.style.display = 'none');
+        if (themeText) themeText.textContent = 'Dark Mode';
         localStorage.setItem('theme', 'dark');
     }
+    
+    closeAllDropdowns();
 }
 
 // Load saved theme on page load
 function loadTheme() {
     const savedTheme = localStorage.getItem('theme');
-    const sunIcon = document.querySelector('.sun-icon');
-    const moonIcon = document.querySelector('.moon-icon');
+    const sunIcons = document.querySelectorAll('.theme-icon-sun');
+    const moonIcons = document.querySelectorAll('.theme-icon-moon');
+    const themeText = document.querySelector('.theme-text');
     
     if (savedTheme === 'light') {
         document.body.classList.add('light-theme');
-        if (sunIcon && moonIcon) {
-            sunIcon.style.display = 'none';
-            moonIcon.style.display = 'block';
-        }
+        sunIcons.forEach(icon => icon.style.display = 'none');
+        moonIcons.forEach(icon => icon.style.display = 'block');
+        if (themeText) themeText.textContent = 'Light Mode';
     }
 }
+
+// Dropdown Menu Functionality
+function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
+    });
+}
+
+// Toggle dropdown on button click
+document.addEventListener('click', function(e) {
+    const dropdownToggle = e.target.closest('.dropdown-toggle');
+    
+    if (dropdownToggle) {
+        e.stopPropagation();
+        const dropdown = dropdownToggle.closest('.dropdown');
+        const menu = dropdown.querySelector('.dropdown-menu');
+        const isOpen = menu.classList.contains('show');
+        
+        // Close all other dropdowns
+        closeAllDropdowns();
+        
+        // Toggle current dropdown
+        if (!isOpen) {
+            menu.classList.add('show');
+        }
+    } else if (!e.target.closest('.dropdown-menu')) {
+        // Close all dropdowns if clicking outside
+        closeAllDropdowns();
+    }
+});
+
+// Close dropdown when clicking a menu item
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.dropdown-item')) {
+        setTimeout(closeAllDropdowns, 100);
+    }
+});
 
 // Call loadTheme after DOM is ready
 document.addEventListener('DOMContentLoaded', loadTheme);
@@ -483,6 +525,14 @@ function insertMarkdown(type) {
         case 'h1':
             newText = selectedText ? `# ${selectedText}` : '# ';
             cursorOffset = selectedText ? newText.length : 2;
+            break;
+        case 'h2':
+            newText = selectedText ? `## ${selectedText}` : '## ';
+            cursorOffset = selectedText ? newText.length : 3;
+            break;
+        case 'h3':
+            newText = selectedText ? `### ${selectedText}` : '### ';
+            cursorOffset = selectedText ? newText.length : 4;
             break;
         case 'bold':
             newText = selectedText ? `**${selectedText}**` : '****';
