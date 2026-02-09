@@ -26,11 +26,37 @@ if (dragBar) {
 
 function handleResize(clientX, clientY) {
     const rect = workspace.getBoundingClientRect();
-    
-    // Always use horizontal resize (both desktop and mobile)
-    let perc = ((clientX - rect.left) / rect.width) * 100;
-    perc = Math.max(5, Math.min(95, perc));
-    workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+        // Vertical Resize for Mobile
+        let perc = ((clientY - rect.top) / rect.height) * 100;
+        perc = Math.max(10, Math.min(90, perc));
+        workspace.style.gridTemplateColumns = "1fr"; // Reset columns
+        workspace.style.gridTemplateRows = `${perc}% 6px 1fr`;
+    } else {
+        // Horizontal Resize for PC
+        let perc = ((clientX - rect.left) / rect.width) * 100;
+        perc = Math.max(15, Math.min(85, perc));
+        workspace.style.gridTemplateRows = "1fr"; // Reset rows
+        workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+    }
+}
+
+// Ensure the dropdown toggler works correctly
+function toggleDropdown(id) {
+    // Close other dropdowns first
+    document.querySelectorAll('.dropdown-content').forEach(d => {
+        if (d.id !== id) d.classList.remove('show');
+    });
+    document.getElementById(id).classList.toggle('show');
+}
+
+// Close dropdowns when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.dropdown-btn') && !event.target.closest('.dropdown-btn')) {
+        document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+    }
 }
 
 function resetSplit() { 
