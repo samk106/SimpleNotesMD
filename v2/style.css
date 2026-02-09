@@ -38,25 +38,6 @@ body {
 
 mark { background-color: var(--highlight); color: inherit; padding: 0 2px; border-radius: 2px; }
 
-/* Desktop/Mobile visibility helpers */
-.desktop-only {
-    display: inline-flex;
-}
-
-.mobile-only {
-    display: none;
-}
-
-@media (max-width: 768px) {
-    .desktop-only {
-        display: none !important;
-    }
-    
-    .mobile-only {
-        display: inline-flex;
-    }
-}
-
 /* 2. Sidebar - Stable Flexbox Approach */
 #sidebar { 
     width: 260px; min-width: 260px; 
@@ -348,32 +329,10 @@ body.light-theme .dropdown-menu {
 .markdown-toolbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    gap: 4px;
     padding: 8px 16px;
     background: var(--toolbar-bg);
     border-bottom: 1px solid var(--border);
-}
-
-.toolbar-all {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-wrap: wrap;
-}
-
-.toolbar-mobile {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    gap: 8px;
-}
-
-.toolbar-primary {
-    display: flex;
-    align-items: center;
-    gap: 4px;
     flex-wrap: wrap;
 }
 
@@ -745,30 +704,12 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
     /* Markdown toolbar - allow wrapping */
     .markdown-toolbar {
         padding: 6px 8px;
-        gap: 4px;
-    }
-    
-    .toolbar-primary {
         gap: 2px;
     }
     
     .toolbar-btn {
         width: 36px;
         height: 36px;
-        flex-shrink: 0;
-    }
-    
-    /* Adjust dropdown positioning on mobile */
-    .dropdown-menu {
-        position: fixed;
-        right: 8px;
-        left: auto;
-        min-width: 250px;
-    }
-    
-    .toolbar-dropdown-menu {
-        left: 8px;
-        right: auto;
     }
     
     /* Workspace becomes horizontal on mobile too */
