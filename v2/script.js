@@ -26,36 +26,15 @@ if (dragBar) {
 
 function handleResize(clientX, clientY) {
     const rect = workspace.getBoundingClientRect();
-    const isMobile = window.innerWidth <= 768;
     
-    if (isMobile) {
-        // Vertical resize for mobile with 5%-95% constraints
-        let perc = ((clientY - rect.top) / rect.height) * 100;
-        perc = Math.max(5, Math.min(95, perc));
-        
-        const editor = document.getElementById('editor');
-        const preview = document.getElementById('preview');
-        editor.style.flex = `0 0 ${perc}%`;
-        preview.style.flex = `0 0 ${100 - perc}%`;
-    } else {
-        // Horizontal resize for desktop with 5%-95% constraints
-        let perc = ((clientX - rect.left) / rect.width) * 100;
-        perc = Math.max(5, Math.min(95, perc));
-        workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
-    }
+    // Always use horizontal resize (both desktop and mobile)
+    let perc = ((clientX - rect.left) / rect.width) * 100;
+    perc = Math.max(5, Math.min(95, perc));
+    workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
 }
 
 function resetSplit() { 
-    const isMobile = window.innerWidth <= 768;
-    
-    if (isMobile) {
-        const editor = document.getElementById('editor');
-        const preview = document.getElementById('preview');
-        editor.style.flex = '1';
-        preview.style.flex = '1';
-    } else {
-        workspace.style.gridTemplateColumns = "1fr 6px 1fr"; 
-    }
+    workspace.style.gridTemplateColumns = "1fr 6px 1fr"; 
 }
 
 // Theme Toggle Function

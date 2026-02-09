@@ -38,6 +38,25 @@ body {
 
 mark { background-color: var(--highlight); color: inherit; padding: 0 2px; border-radius: 2px; }
 
+/* Desktop/Mobile visibility helpers */
+.desktop-only {
+    display: inline-flex;
+}
+
+.mobile-only {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none !important;
+    }
+    
+    .mobile-only {
+        display: inline-flex;
+    }
+}
+
 /* 2. Sidebar - Stable Flexbox Approach */
 #sidebar { 
     width: 260px; min-width: 260px; 
@@ -334,6 +353,21 @@ body.light-theme .dropdown-menu {
     padding: 8px 16px;
     background: var(--toolbar-bg);
     border-bottom: 1px solid var(--border);
+}
+
+.toolbar-all {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.toolbar-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
 }
 
 .toolbar-primary {
@@ -737,39 +771,39 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         right: auto;
     }
     
-    /* Workspace becomes vertical stack */
+    /* Workspace becomes horizontal on mobile too */
     .workspace {
-        display: flex !important;
-        flex-direction: column;
-        grid-template-columns: none !important;
+        display: grid !important;
+        grid-template-columns: 1fr 6px 1fr !important;
+        flex-direction: row;
     }
     
     #editor {
-        flex: 1;
-        min-height: 40vh;
+        flex: none;
+        min-height: auto;
         padding: 20px;
         font-size: 14px;
     }
     
-    /* Horizontal resizer */
+    /* Vertical resizer on mobile */
     .resizer {
-        cursor: row-resize;
-        width: 100%;
-        height: 6px;
+        cursor: col-resize;
+        width: 6px;
+        height: auto;
         background: var(--border);
     }
     
     .resizer::after {
-        left: 50%;
-        top: 2px;
-        width: 40px;
-        height: 2px;
-        transform: translateX(-50%);
+        left: 2px;
+        top: 50%;
+        width: 2px;
+        height: 40px;
+        transform: translateY(-50%);
     }
     
     #preview {
-        flex: 1;
-        min-height: 40vh;
+        flex: none;
+        min-height: auto;
         padding: 20px;
         font-size: 15px;
     }
