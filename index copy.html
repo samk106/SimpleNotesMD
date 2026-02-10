@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Notes MD - Simple Markdown Notes Editor</title>
+    <title>SimpleMD Pro - Zen UI</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -12,7 +12,7 @@
 
 <aside id="sidebar">
     <div class="sidebar-header">
-        <button class="icon-btn" style="width: 100%; background: #111; color: white; font-size: 13px; font-weight: 600;" onclick="createNewNote()">+ New Note</button>
+        <button class="new-note-btn" onclick="createNewNote()">+ New Note</button>
         <input type="text" id="searchBar" placeholder="Search notes..." oninput="renderSidebar()">
     </div>
     <div id="noteList" class="list-container"></div>
