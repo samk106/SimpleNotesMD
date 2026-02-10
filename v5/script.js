@@ -399,33 +399,17 @@ function openFromLib(id) { toggleLibrary(); loadNote(id); }
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('sidebarToggle');
-    const list = document.querySelector('.list-container');
-    const header = document.querySelector('.sidebar-header');
     const isMobile = window.innerWidth <= 768;
 
     if (isMobile) {
-        // Mobile: Toggle overlay
-        sidebar.classList.toggle('mobile-open');
-        
-        if (sidebar.classList.contains('mobile-open')) {
-            toggleBtn.innerText = '‹';
-        } else {
-            toggleBtn.innerText = '›';
-        }
+        // Simple toggle for mobile
+        const isOpen = sidebar.classList.toggle('mobile-open');
+        toggleBtn.innerText = isOpen ? '‹' : '›';
     } else {
-        // Desktop: Toggle collapse
+        // Desktop logic
         sidebar.classList.toggle('hidden');
-
-        if (sidebar.classList.contains('hidden')) {
-            toggleBtn.innerText = '›';
-            if(list) list.style.display = 'none';
-            if(header) header.style.display = 'none';
-        } else {
-            toggleBtn.innerText = '‹';
-            if(list) list.style.display = 'block';
-            if(header) header.style.display = 'flex';
-        }
-
+        const isHidden = sidebar.classList.contains('hidden');
+        toggleBtn.innerText = isHidden ? '›' : '‹';
         window.dispatchEvent(new Event('resize'));
     }
 }

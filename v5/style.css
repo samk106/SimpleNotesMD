@@ -653,43 +653,37 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
 
 /* Mobile - 768px and below */
 @media (max-width: 768px) {
-    body {
-        flex-direction: column;
-    }
-    
-    /* Sidebar becomes overlay drawer */
     #sidebar {
         position: fixed;
-        left: -260px;
+        left: -260px; /* Hidden off-screen */
         top: 0;
         bottom: 0;
         width: 260px;
-        min-width: 260px;
-        z-index: 1000;
-        transition: left 0.3s ease;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        z-index: 2000; /* Ensure it's above everything */
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex !important; /* Ensure it's not display: none */
     }
-    
+
     #sidebar.mobile-open {
-        left: 0;
-    }
-    
-    #sidebar.hidden {
-        left: -260px !important;
+        left: 0 !important;
     }
 
+    #sidebarToggle {
+        left: 0; /* Positioned at edge of screen when closed */
+        display: flex !important;
+        visibility: visible !important;
+        z-index: 2001;
+        background: var(--accent) !important;
+        color: white !important;
+        width: 30px; /* Slightly wider for thumb-friendliness */
+        height: 60px;
+    }
 
-
-    
-    .mobile-only {
-    display: none;
+    #sidebar.mobile-open #sidebarToggle {
+        left: 260px; /* Move with the sidebar */
+    }
 }
 
-@media (max-width: 768px) {
-    .mobile-only {
-        display: inline-flex;
-    }
-}
 
 
 
@@ -761,11 +755,28 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         display: flex;
     }
     
-    /* Disable split view on mobile - use full screen tabs */
-    .workspace {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        grid-template-rows: 1fr !important;
+.workspace {
+        display: flex !important; /* Switch from grid to flex for easier scroll management */
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden; /* Prevent the container itself from scrolling */
+        height: calc(100vh - 110px); /* Adjust based on your header + tabs height */
+    }
+
+    #editor, #preview {
+        flex: 1;
+        height: 100%;
+        overflow-y: auto !important; /* Force vertical scroll */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+        display: none; /* Hidden by default, toggled by JS */
+    }
+
+    .workspace.preview-mode #preview {
+        display: block !important;
+    }
+
+    .workspace:not(.preview-mode) #editor {
+        display: block !important;
     }
     
     /* Hide resizer on mobile */
