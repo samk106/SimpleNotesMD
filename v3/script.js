@@ -26,20 +26,27 @@ if (dragBar) {
 
 function handleResize(clientX, clientY) {
     const rect = workspace.getBoundingClientRect();
-    const isMobile = window.innerWidth <= 768;
+    
+    // Determine layout based on CSS computed style
+    // This is safer than window.innerWidth because it checks the actual layout
+    const workspaceStyle = window.getComputedStyle(workspace);
+    const isVerticalLayout = workspaceStyle.gridTemplateRows.includes('px') && 
+                             !workspaceStyle.gridTemplateColumns.includes(' ');
 
-    if (isMobile) {
-        // Vertical Resize for Mobile
+    if (isVerticalLayout) {
+        // Vertical Resize (Top/Bottom)
         let perc = ((clientY - rect.top) / rect.height) * 100;
         perc = Math.max(10, Math.min(90, perc));
-        workspace.style.gridTemplateColumns = "1fr"; // Reset columns
+        workspace.style.gridTemplateColumns = "1fr"; 
         workspace.style.gridTemplateRows = `${perc}% 6px 1fr`;
+        dragBar.style.cursor = "row-resize";
     } else {
-        // Horizontal Resize for PC
+        // Horizontal Resize (Left/Right)
         let perc = ((clientX - rect.left) / rect.width) * 100;
         perc = Math.max(15, Math.min(85, perc));
-        workspace.style.gridTemplateRows = "1fr"; // Reset rows
+        workspace.style.gridTemplateRows = "1fr"; 
         workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+        dragBar.style.cursor = "col-resize";
     }
 }
 
