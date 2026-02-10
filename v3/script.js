@@ -27,27 +27,20 @@ if (dragBar) {
 function handleResize(clientX, clientY) {
     const rect = workspace.getBoundingClientRect();
     
-    // Determine layout based on CSS computed style
-    // This is safer than window.innerWidth because it checks the actual layout
-    const workspaceStyle = window.getComputedStyle(workspace);
-    const isVerticalLayout = workspaceStyle.gridTemplateRows.includes('px') && 
-                             !workspaceStyle.gridTemplateColumns.includes(' ');
-
-    if (isVerticalLayout) {
-        // Vertical Resize (Top/Bottom)
-        let perc = ((clientY - rect.top) / rect.height) * 100;
-        perc = Math.max(10, Math.min(90, perc));
-        workspace.style.gridTemplateColumns = "1fr"; 
-        workspace.style.gridTemplateRows = `${perc}% 6px 1fr`;
-        dragBar.style.cursor = "row-resize";
-    } else {
-        // Horizontal Resize (Left/Right)
-        let perc = ((clientX - rect.left) / rect.width) * 100;
-        perc = Math.max(15, Math.min(85, perc));
-        workspace.style.gridTemplateRows = "1fr"; 
-        workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
-        dragBar.style.cursor = "col-resize";
-    }
+    // If you want it to ALWAYS be a horizontal (left/right) split:
+    let perc = ((clientX - rect.left) / rect.width) * 100;
+    
+    // Constraints: Don't let the user drag too far left or right
+    perc = Math.max(10, Math.min(90, perc));
+    
+    // Apply the horizontal columns
+    workspace.style.gridTemplateRows = "1fr"; // Force single row
+    workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+    
+    // Ensure the dragBar looks like a vertical line
+    dragBar.style.width = "6px";
+    dragBar.style.height = "100%";
+    dragBar.style.cursor = "col-resize";
 }
 
 // Ensure the dropdown toggler works correctly

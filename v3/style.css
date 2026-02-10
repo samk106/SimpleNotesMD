@@ -325,7 +325,7 @@ body.light-theme .dropdown-menu {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* 5. Markdown Toolbar */
+/* 5. Markdown Toolbar - Updated for Mobile */
 .markdown-toolbar {
     display: flex;
     align-items: center;
@@ -333,7 +333,29 @@ body.light-theme .dropdown-menu {
     padding: 8px 16px;
     background: var(--toolbar-bg);
     border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
+    /* Mobile Fixes: */
+    flex-wrap: nowrap;      /* Prevents buttons from stacking vertically */
+    overflow-x: auto;       /* Allows horizontal scrolling on small screens */
+    -webkit-overflow-scrolling: touch; 
+    min-height: 45px;       /* Ensures consistent height */
+}
+
+/* Ensure icons don't shrink on mobile */
+.toolbar-btn {
+    flex-shrink: 0;
+}
+
+/* Fix for the Top Header on Mobile */
+@media (max-width: 768px) {
+    header {
+        display: flex !important; /* Forces header to show */
+        padding: 5px 10px;
+    }
+    
+    .workspace {
+        /* This ensures the workspace fills the remaining height */
+        height: calc(100vh - 100px); 
+    }
 }
 
 .toolbar-btn {
