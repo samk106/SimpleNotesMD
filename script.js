@@ -30,11 +30,21 @@ if (dragBar) {
 
 function handleResize(clientX, clientY) {
     const rect = workspace.getBoundingClientRect();
-    
-    // Always use horizontal resize (both desktop and mobile)
-    let perc = ((clientX - rect.left) / rect.width) * 100;
-    perc = Math.max(5, Math.min(95, perc));
-    workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+        // Horizontal split on mobile, but vertical drag to resize left/right panels
+        let perc = ((clientX - rect.left) / rect.width) * 100;
+        perc = Math.max(5, Math.min(95, perc));
+        workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+        workspace.style.gridTemplateRows = "1fr";
+    } else {
+        // Horizontal split on PC with horizontal drag
+        let perc = ((clientX - rect.left) / rect.width) * 100;
+        perc = Math.max(5, Math.min(95, perc));
+        workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+        workspace.style.gridTemplateRows = "1fr";
+    }
 }
 
 // Ensure the dropdown toggler works correctly
@@ -55,6 +65,7 @@ window.onclick = function(event) {
 
 function resetSplit() { 
     workspace.style.gridTemplateColumns = "1fr 6px 1fr"; 
+    workspace.style.gridTemplateRows = "1fr";
 }
 
 // Theme Toggle Function

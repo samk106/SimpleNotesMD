@@ -713,26 +713,27 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         height: 36px;
     }
     
-    /* Workspace becomes horizontal on mobile too */
+    /* Workspace - horizontal split on mobile */
     .workspace {
         display: grid !important;
         grid-template-columns: 1fr 6px 1fr !important;
-        flex-direction: row;
+        grid-template-rows: 1fr !important;
     }
     
     #editor {
-        flex: none;
-        min-height: auto;
         padding: 20px;
         font-size: 14px;
+        overflow-y: auto;
+        min-width: 0;
     }
     
-    /* Vertical resizer on mobile */
+    /* Vertical resizer bar for horizontal split */
     .resizer {
         cursor: col-resize;
         width: 6px;
-        height: auto;
+        height: 100%;
         background: var(--border);
+        touch-action: none; /* Prevent scrolling on touch */
     }
     
     .resizer::after {
@@ -744,11 +745,10 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
     }
     
     #preview {
-        flex: none;
-        min-height: auto;
         padding: 20px;
         font-size: 15px;
         overflow-y: auto;
+        min-width: 0;
     }
     
     /* Library view adjustments */
