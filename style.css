@@ -251,11 +251,85 @@ header {
     color: var(--danger);
 }
 
+/* Dropdown Menus */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 200px;
+    background: var(--sidebar);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    padding: 4px 0;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+
+.dropdown-menu.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dropdown-item {
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background: var(--hover);
+}
+
+.dropdown-item.danger {
+    color: var(--danger);
+}
+
+.dropdown-item.danger:hover {
+    background: rgba(255, 69, 58, 0.1);
+}
+
+.dropdown-item svg {
+    flex-shrink: 0;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+}
+
+/* Light theme dropdown */
+body.light-theme .dropdown-menu {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 /* 5. Markdown Toolbar */
 .markdown-toolbar {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
     padding: 8px 16px;
     background: var(--toolbar-bg);
     border-bottom: 1px solid var(--border);
@@ -274,6 +348,7 @@ header {
     border-radius: 4px;
     transition: all 0.2s;
     color: var(--text-secondary);
+    flex-shrink: 0;
 }
 
 .toolbar-btn:hover {
@@ -283,6 +358,26 @@ header {
 
 .toolbar-btn:active {
     transform: scale(0.95);
+}
+
+.toolbar-dropdown {
+    position: relative;
+}
+
+.toolbar-dropdown-menu {
+    right: auto;
+    left: 0;
+    min-width: 180px;
+}
+
+.toolbar-dropdown-menu .dropdown-item {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.toolbar-dropdown-menu .dropdown-item svg {
+    width: 16px;
+    height: 16px;
 }
 
 .toolbar-divider {
@@ -509,4 +604,219 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #4e4e52;
+}
+
+/* 9. Mobile Responsive Styles */
+
+/* Tablet - 1024px and below */
+@media (max-width: 1024px) {
+    #sidebar {
+        width: 220px;
+        min-width: 220px;
+    }
+    
+    #sidebarToggle {
+        left: 220px;
+    }
+    
+    .note-item:hover .note-title[data-title]::after {
+        left: 240px;
+    }
+    
+    .note-item:hover .note-title[data-title]::before {
+        left: 232px;
+    }
+}
+
+/* Mobile - 768px and below */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    
+    /* Sidebar becomes overlay drawer */
+    #sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+        min-width: 260px;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+    }
+    
+    #sidebar.mobile-open {
+        left: 0;
+    }
+    
+    #sidebar.hidden {
+        left: -260px !important;
+    }
+    
+    /* Toggle button always visible on mobile */
+    #sidebarToggle {
+        left: 0;
+        z-index: 999;
+        border-radius: 0 6px 6px 0;
+    }
+    
+    #sidebar.mobile-open #sidebarToggle {
+        left: 260px;
+    }
+    
+    /* Main content takes full width */
+    #main {
+        width: 100%;
+        flex: 1;
+    }
+    
+    /* Header adjustments */
+    header {
+        padding: 0 12px;
+        height: 50px;
+        flex-wrap: wrap;
+    }
+    
+    #displayTitle {
+        font-size: 14px;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .header-actions {
+        gap: 2px;
+    }
+    
+    .icon-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .icon-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    /* Markdown toolbar - allow wrapping */
+    .markdown-toolbar {
+        padding: 6px 8px;
+        gap: 2px;
+    }
+    
+    .toolbar-btn {
+        width: 36px;
+        height: 36px;
+    }
+    
+    /* Workspace becomes horizontal on mobile too */
+    .workspace {
+        display: grid !important;
+        grid-template-columns: 1fr 6px 1fr !important;
+        flex-direction: row;
+    }
+    
+    #editor {
+        flex: none;
+        min-height: auto;
+        padding: 20px;
+        font-size: 14px;
+    }
+    
+    /* Vertical resizer on mobile */
+    .resizer {
+        cursor: col-resize;
+        width: 6px;
+        height: auto;
+        background: var(--border);
+    }
+    
+    .resizer::after {
+        left: 2px;
+        top: 50%;
+        width: 2px;
+        height: 40px;
+        transform: translateY(-50%);
+    }
+    
+    #preview {
+        flex: none;
+        min-height: auto;
+        padding: 20px;
+        font-size: 15px;
+    }
+    
+    /* Library view adjustments */
+    #libraryView {
+        padding: 20px;
+    }
+    
+    .lib-table {
+        font-size: 12px;
+    }
+    
+    .lib-table th,
+    .lib-table td {
+        padding: 8px;
+    }
+    
+    /* Hide some columns on mobile */
+    .lib-table th:nth-child(3),
+    .lib-table td:nth-child(3),
+    .lib-table th:nth-child(4),
+    .lib-table td:nth-child(4) {
+        display: none;
+    }
+    
+    /* Tooltip positioning for mobile */
+    .note-item:hover .note-title[data-title]::after,
+    .note-item:hover .note-title[data-title]::before {
+        display: none;
+    }
+}
+
+/* Small mobile - 480px and below */
+@media (max-width: 480px) {
+    header {
+        height: auto;
+        min-height: 50px;
+        padding: 8px;
+    }
+    
+    #displayTitle {
+        width: 100%;
+        max-width: none;
+        margin-bottom: 4px;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .markdown-toolbar {
+        padding: 4px;
+    }
+    
+    .toolbar-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    #editor,
+    #preview {
+        padding: 15px;
+    }
+    
+    #libraryView {
+        padding: 15px;
+    }
+    
+    .lib-filter-input {
+        font-size: 13px;
+        padding: 10px;
+    }
 }

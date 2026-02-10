@@ -1,58 +1,134 @@
 let db, currentNoteId = null, sortKey = 'updated', sortOrder = 'desc';
 
-// Draggable Logic
+// Draggable Logic - supports both horizontal and vertical
 const workspace = document.getElementById('workspaceContainer');
 const dragBar = document.getElementById('dragBar');
 let isDragging = false;
 
 if (dragBar) {
     dragBar.addEventListener('mousedown', () => isDragging = true);
+    dragBar.addEventListener('touchstart', () => isDragging = true);
+    
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        const rect = workspace.getBoundingClientRect();
-        let perc = ((e.clientX - rect.left) / rect.width) * 100;
-        perc = Math.max(15, Math.min(85, perc));
-        workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+        handleResize(e.clientX, e.clientY);
     });
+    
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        handleResize(touch.clientX, touch.clientY);
+    });
+    
     document.addEventListener('mouseup', () => isDragging = false);
+    document.addEventListener('touchend', () => isDragging = false);
 }
 
-function resetSplit() { workspace.style.gridTemplateColumns = "1fr 6px 1fr"; }
+function handleResize(clientX, clientY) {
+    const rect = workspace.getBoundingClientRect();
+    
+    // Always use horizontal resize (both desktop and mobile)
+    let perc = ((clientX - rect.left) / rect.width) * 100;
+    perc = Math.max(5, Math.min(95, perc));
+    workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+}
+
+// Ensure the dropdown toggler works correctly
+function toggleDropdown(id) {
+    // Close other dropdowns first
+    document.querySelectorAll('.dropdown-content').forEach(d => {
+        if (d.id !== id) d.classList.remove('show');
+    });
+    document.getElementById(id).classList.toggle('show');
+}
+
+// Close dropdowns when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.dropdown-btn') && !event.target.closest('.dropdown-btn')) {
+        document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+    }
+}
+
+function resetSplit() { 
+    workspace.style.gridTemplateColumns = "1fr 6px 1fr"; 
+}
 
 // Theme Toggle Function
 function toggleTheme() {
     const body = document.body;
-    const sunIcon = document.querySelector('.sun-icon');
-    const moonIcon = document.querySelector('.moon-icon');
+    const sunIcons = document.querySelectorAll('.theme-icon-sun');
+    const moonIcons = document.querySelectorAll('.theme-icon-moon');
+    const themeText = document.querySelector('.theme-text');
     
     body.classList.toggle('light-theme');
     
     // Toggle icon visibility
     if (body.classList.contains('light-theme')) {
-        sunIcon.style.display = 'none';
-        moonIcon.style.display = 'block';
+        sunIcons.forEach(icon => icon.style.display = 'none');
+        moonIcons.forEach(icon => icon.style.display = 'block');
+        if (themeText) themeText.textContent = 'Light Mode';
         localStorage.setItem('theme', 'light');
     } else {
-        sunIcon.style.display = 'block';
-        moonIcon.style.display = 'none';
+        sunIcons.forEach(icon => icon.style.display = 'block');
+        moonIcons.forEach(icon => icon.style.display = 'none');
+        if (themeText) themeText.textContent = 'Dark Mode';
         localStorage.setItem('theme', 'dark');
     }
+    
+    closeAllDropdowns();
 }
 
 // Load saved theme on page load
 function loadTheme() {
     const savedTheme = localStorage.getItem('theme');
-    const sunIcon = document.querySelector('.sun-icon');
-    const moonIcon = document.querySelector('.moon-icon');
+    const sunIcons = document.querySelectorAll('.theme-icon-sun');
+    const moonIcons = document.querySelectorAll('.theme-icon-moon');
+    const themeText = document.querySelector('.theme-text');
     
     if (savedTheme === 'light') {
         document.body.classList.add('light-theme');
-        if (sunIcon && moonIcon) {
-            sunIcon.style.display = 'none';
-            moonIcon.style.display = 'block';
-        }
+        sunIcons.forEach(icon => icon.style.display = 'none');
+        moonIcons.forEach(icon => icon.style.display = 'block');
+        if (themeText) themeText.textContent = 'Light Mode';
     }
 }
+
+// Dropdown Menu Functionality
+function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
+    });
+}
+
+// Toggle dropdown on button click
+document.addEventListener('click', function(e) {
+    const dropdownToggle = e.target.closest('.dropdown-toggle');
+    
+    if (dropdownToggle) {
+        e.stopPropagation();
+        const dropdown = dropdownToggle.closest('.dropdown');
+        const menu = dropdown.querySelector('.dropdown-menu');
+        const isOpen = menu.classList.contains('show');
+        
+        // Close all other dropdowns
+        closeAllDropdowns();
+        
+        // Toggle current dropdown
+        if (!isOpen) {
+            menu.classList.add('show');
+        }
+    } else if (!e.target.closest('.dropdown-menu')) {
+        // Close all dropdowns if clicking outside
+        closeAllDropdowns();
+    }
+});
+
+// Close dropdown when clicking a menu item
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.dropdown-item')) {
+        setTimeout(closeAllDropdowns, 100);
+    }
+});
 
 // Call loadTheme after DOM is ready
 document.addEventListener('DOMContentLoaded', loadTheme);
@@ -294,21 +370,62 @@ function toggleSidebar() {
     const toggleBtn = document.getElementById('sidebarToggle');
     const list = document.querySelector('.list-container');
     const header = document.querySelector('.sidebar-header');
+    const isMobile = window.innerWidth <= 768;
 
-    sidebar.classList.toggle('hidden');
-
-    if (sidebar.classList.contains('hidden')) {
-        toggleBtn.innerText = '›';
-        if(list) list.style.display = 'none';
-        if(header) header.style.display = 'none';
+    if (isMobile) {
+        // Mobile: Toggle overlay
+        sidebar.classList.toggle('mobile-open');
+        
+        if (sidebar.classList.contains('mobile-open')) {
+            toggleBtn.innerText = '‹';
+        } else {
+            toggleBtn.innerText = '›';
+        }
     } else {
-        toggleBtn.innerText = '‹';
-        if(list) list.style.display = 'block';
-        if(header) header.style.display = 'flex';
-    }
+        // Desktop: Toggle collapse
+        sidebar.classList.toggle('hidden');
 
-    window.dispatchEvent(new Event('resize'));
+        if (sidebar.classList.contains('hidden')) {
+            toggleBtn.innerText = '›';
+            if(list) list.style.display = 'none';
+            if(header) header.style.display = 'none';
+        } else {
+            toggleBtn.innerText = '‹';
+            if(list) list.style.display = 'block';
+            if(header) header.style.display = 'flex';
+        }
+
+        window.dispatchEvent(new Event('resize'));
+    }
 }
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile && sidebar.classList.contains('mobile-open')) {
+        if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+            sidebar.classList.remove('mobile-open');
+            toggleBtn.innerText = '›';
+        }
+    }
+});
+
+// Auto-close sidebar after selecting a note on mobile
+const originalLoadNote = loadNote;
+loadNote = function(id) {
+    originalLoadNote(id);
+    
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        sidebar.classList.remove('mobile-open');
+        toggleBtn.innerText = '›';
+    }
+};
 
 function updatePreview() { 
     const rawContent = document.getElementById('editor').value.replace(/^---[\s\S]*?---/, '');
@@ -403,6 +520,14 @@ function insertMarkdown(type) {
         case 'h1':
             newText = selectedText ? `# ${selectedText}` : '# ';
             cursorOffset = selectedText ? newText.length : 2;
+            break;
+        case 'h2':
+            newText = selectedText ? `## ${selectedText}` : '## ';
+            cursorOffset = selectedText ? newText.length : 3;
+            break;
+        case 'h3':
+            newText = selectedText ? `### ${selectedText}` : '### ';
+            cursorOffset = selectedText ? newText.length : 4;
             break;
         case 'bold':
             newText = selectedText ? `**${selectedText}**` : '****';
