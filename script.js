@@ -7,7 +7,10 @@ let isDragging = false;
 
 if (dragBar) {
     dragBar.addEventListener('mousedown', () => isDragging = true);
-    dragBar.addEventListener('touchstart', () => isDragging = true);
+    dragBar.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        e.preventDefault(); // Prevent default touch behavior
+    });
     
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
@@ -16,9 +19,10 @@ if (dragBar) {
     
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
+        e.preventDefault(); // Prevent scrolling while dragging
         const touch = e.touches[0];
         handleResize(touch.clientX, touch.clientY);
-    });
+    }, { passive: false }); // Allow preventDefault
     
     document.addEventListener('mouseup', () => isDragging = false);
     document.addEventListener('touchend', () => isDragging = false);

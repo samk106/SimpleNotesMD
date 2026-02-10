@@ -406,6 +406,7 @@ body.light-theme .dropdown-menu {
     line-height: 1.6; 
     background: var(--editor-bg);
     color: var(--text);
+    overflow-y: auto;
 }
 
 #editor::placeholder {
@@ -747,6 +748,7 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         min-height: auto;
         padding: 20px;
         font-size: 15px;
+        overflow-y: auto;
     }
     
     /* Library view adjustments */
