@@ -677,6 +677,23 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
     #sidebar.hidden {
         left: -260px !important;
     }
+
+
+
+    
+    .mobile-only {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-only {
+        display: inline-flex;
+    }
+}
+
+
+
+
     
     /* Toggle button always visible on mobile */
     #sidebarToggle {

@@ -216,8 +216,10 @@
 
     <!-- Mobile Editor / Preview Tabs -->
     <div class="mobile-tabs">
+        <button class="icon-btn mobile-only" onclick="toggleSidebar()">☰</button>
         <button class="tab-btn active" data-view="editor">Editor</button>
         <button class="tab-btn" data-view="preview">Preview</button>
+
     </div>
 
     <div class="workspace" id="workspaceContainer">
@@ -225,6 +227,8 @@
         <div class="resizer" id="dragBar"></div>
         <div id="preview"></div>
     </div>
+
+    
 </main>
 
 <script src="script.js"></script>
