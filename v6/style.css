@@ -655,6 +655,8 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
 @media (max-width: 768px) {
     body {
         flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
     }
     
     /* Sidebar becomes overlay drawer */
@@ -700,17 +702,23 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         left: 260px !important;
     }
     
-    /* Main content takes full width */
+    /* Main content takes full width and height */
     #main {
         width: 100%;
         flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
     }
     
     /* Header adjustments */
     header {
         padding: 0 12px;
         height: 50px;
-        flex-wrap: wrap;
+        flex-shrink: 0;
+        flex-wrap: nowrap;
+        overflow: visible;
     }
     
     #displayTitle {
@@ -739,6 +747,7 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
     .markdown-toolbar {
         padding: 6px 8px;
         gap: 2px;
+        flex-shrink: 0;
     }
     
     .toolbar-btn {
@@ -749,14 +758,16 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
     /* Enable mobile tabs */
     .mobile-tabs {
         display: flex;
+        flex-shrink: 0;
     }
     
     /* Disable split view on mobile - use full screen tabs */
     .workspace {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        grid-template-rows: 1fr !important;
-        overflow: visible !important;
+        flex: 1;
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0;
+        overflow: hidden;
     }
     
     /* Hide resizer on mobile */
@@ -764,13 +775,14 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         display: none !important;
     }
     
-    /* Show only editor by default */
+    /* Show only editor by default - needs to fill and scroll */
     #editor {
         display: block;
         padding: 20px;
         font-size: 14px;
         overflow-y: auto;
-        height: 100%;
+        flex: 1;
+        min-height: 0;
     }
     
     #preview {
@@ -778,7 +790,8 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         padding: 20px;
         font-size: 15px;
         overflow-y: auto;
-        height: 100%;
+        flex: 1;
+        min-height: 0;
     }
     
     /* When in preview mode, hide editor and show preview */
@@ -788,8 +801,6 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
     
     .workspace.preview-mode #preview {
         display: block;
-        overflow-y: auto;
-        height: 100%;
     }
     
     /* Library view adjustments */
