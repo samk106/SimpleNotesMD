@@ -19,6 +19,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+    
+    // Mobile keyboard handling - prevent viewport shift
+    if (window.innerWidth <= 768) {
+        const editor = document.getElementById('editor');
+        
+        // When editor gets focus, add class to body
+        editor.addEventListener('focus', () => {
+            document.body.classList.add('keyboard-open');
+        });
+        
+        // When editor loses focus, remove class
+        editor.addEventListener('blur', () => {
+            document.body.classList.remove('keyboard-open');
+        });
+        
+        // Scroll editor to cursor position when typing
+        editor.addEventListener('input', () => {
+            if (document.activeElement === editor) {
+                editor.scrollTop = editor.scrollHeight;
+            }
+        });
+    }
 });
 
 // Draggable Logic - supports both horizontal and vertical
