@@ -678,19 +678,26 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         left: -260px !important;
     }
     
-    /* Toggle button always visible on mobile */
+    /* Toggle button always visible on mobile - fixed positioning */
     #sidebarToggle {
-        left: 0;
+        position: fixed !important;
+        left: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
         z-index: 999;
         border-radius: 0 6px 6px 0;
         background: var(--accent);
         color: white;
-        font-size: 18px;
+        font-size: 20px;
         font-weight: bold;
+        width: 32px;
+        height: 56px;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.3);
+        transition: left 0.3s ease;
     }
     
     #sidebar.mobile-open #sidebarToggle {
-        left: 260px;
+        left: 260px !important;
     }
     
     /* Main content takes full width */
@@ -749,6 +756,7 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         display: grid !important;
         grid-template-columns: 1fr !important;
         grid-template-rows: 1fr !important;
+        overflow: visible !important;
     }
     
     /* Hide resizer on mobile */
@@ -762,6 +770,7 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         padding: 20px;
         font-size: 14px;
         overflow-y: auto;
+        height: 100%;
     }
     
     #preview {
@@ -769,6 +778,7 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         padding: 20px;
         font-size: 15px;
         overflow-y: auto;
+        height: 100%;
     }
     
     /* When in preview mode, hide editor and show preview */
@@ -778,6 +788,8 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
     
     .workspace.preview-mode #preview {
         display: block;
+        overflow-y: auto;
+        height: 100%;
     }
     
     /* Library view adjustments */
