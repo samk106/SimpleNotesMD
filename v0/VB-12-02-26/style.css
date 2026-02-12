@@ -30,29 +30,10 @@ body.light-theme {
 }
 
 /* 1. Reset & Base Layout */
-* {
-    box-sizing: border-box;
-}
-
-html {
-    height: 100%;
-    overflow: hidden;
-}
-
 body { 
     font-family: -apple-system, system-ui, sans-serif; 
-    margin: 0; 
-    display: flex; 
-    height: 100%;
-    width: 100%;
-    color: var(--text); 
-    background: var(--bg); 
-    overflow: hidden;
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    margin: 0; display: flex; height: 100vh; width: 100vw;
+    color: var(--text); background: var(--bg); overflow: hidden; 
 }
 
 mark { background-color: var(--highlight); color: inherit; padding: 0 2px; border-radius: 2px; }
@@ -425,6 +406,7 @@ body.light-theme .dropdown-menu {
     line-height: 1.6; 
     background: var(--editor-bg);
     color: var(--text);
+    overflow-y: auto;
 }
 
 #editor::placeholder {
@@ -647,38 +629,8 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
     }
 }
 
-/* Mobile tabs - hidden by default, shown only on mobile */
-.mobile-tabs {
-    display: none;
-    border-bottom: 1px solid var(--border);
-    background: var(--sidebar);
-}
-
-.mobile-tabs .tab-btn {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.mobile-tabs .tab-btn.active {
-    color: var(--text);
-    border-bottom: 2px solid var(--accent);
-}
-
 /* Mobile - 768px and below */
 @media (max-width: 768px) {
-    html, body {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-    }
-    
     body {
         flex-direction: column;
     }
@@ -704,50 +656,28 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         left: -260px !important;
     }
     
-    /* Toggle button always visible on mobile - fixed positioning */
+    /* Toggle button always visible on mobile */
     #sidebarToggle {
-        position: fixed !important;
-        left: 0 !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
+        left: 0;
         z-index: 999;
         border-radius: 0 6px 6px 0;
-        background: var(--accent);
-        color: white;
-        font-size: 20px;
-        font-weight: bold;
-        width: 32px;
-        height: 56px;
-        box-shadow: 2px 0 8px rgba(0,0,0,0.3);
-        transition: left 0.3s ease;
     }
     
     #sidebar.mobile-open #sidebarToggle {
-        left: 260px !important;
+        left: 260px;
     }
     
-    /* Main content takes full screen */
+    /* Main content takes full width */
     #main {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
         width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+        flex: 1;
     }
     
-    /* Header - fixed height, never scrolls */
+    /* Header adjustments */
     header {
         padding: 0 12px;
         height: 50px;
-        min-height: 50px;
-        flex-shrink: 0;
-        flex-wrap: nowrap;
-        overflow: visible;
+        flex-wrap: wrap;
     }
     
     #displayTitle {
@@ -772,12 +702,10 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         height: 18px;
     }
     
-    /* Markdown toolbar - fixed height, never scrolls */
+    /* Markdown toolbar - allow wrapping */
     .markdown-toolbar {
         padding: 6px 8px;
         gap: 2px;
-        flex-shrink: 0;
-        min-height: 48px;
     }
     
     .toolbar-btn {
@@ -785,78 +713,42 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
         height: 36px;
     }
     
-    /* Mobile tabs - fixed height */
-    .mobile-tabs {
-        display: flex;
-        flex-shrink: 0;
-        height: 44px;
-        min-height: 44px;
-    }
-    
-    /* Workspace - takes remaining space and is scrollable */
+    /* Workspace - horizontal split on mobile */
     .workspace {
-        flex: 1;
-        display: flex !important;
-        flex-direction: column !important;
-        min-height: 0;
-        overflow: hidden;
-        position: relative;
+        display: grid !important;
+        grid-template-columns: 1fr 6px 1fr !important;
+        grid-template-rows: 1fr !important;
     }
     
-    /* Hide resizer on mobile */
-    .resizer {
-        display: none !important;
-    }
-    
-    /* Editor and Preview - fill workspace and scroll independently */
     #editor {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        display: block;
         padding: 20px;
         font-size: 14px;
         overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        border: none;
-        background: var(--editor-bg);
-        color: var(--text);
+        min-width: 0;
+    }
+    
+    /* Vertical resizer bar for horizontal split */
+    .resizer {
+        cursor: col-resize;
+        width: 6px;
+        height: 100%;
+        background: var(--border);
+        touch-action: none; /* Prevent scrolling on touch */
+    }
+    
+    .resizer::after {
+        left: 2px;
+        top: 50%;
+        width: 2px;
+        height: 40px;
+        transform: translateY(-50%);
     }
     
     #preview {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        display: none;
         padding: 20px;
         font-size: 15px;
         overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        background: var(--preview-bg);
-    }
-    
-    /* When in preview mode, hide editor and show preview */
-    .workspace.preview-mode #editor {
-        display: none;
-    }
-    
-    .workspace.preview-mode #preview {
-        display: block;
-    }
-    
-    /* Prevent body scroll on iOS when keyboard appears */
-    body.keyboard-open {
-        position: fixed;
-        width: 100%;
-        height: 100%;
+        min-width: 0;
     }
     
     /* Library view adjustments */

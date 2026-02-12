@@ -1,48 +1,5 @@
 let db, currentNoteId = null, sortKey = 'updated', sortOrder = 'desc';
 
-// Mobile tab switching for Editor/Preview
-document.addEventListener('DOMContentLoaded', () => {
-    const tabs = document.querySelectorAll('.tab-btn');
-    const workspace = document.getElementById('workspaceContainer');
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-
-            if (tab.dataset.view === 'preview') {
-                workspace.classList.add('preview-mode');
-                // Update preview when switching to it
-                updatePreview();
-            } else {
-                workspace.classList.remove('preview-mode');
-            }
-        });
-    });
-    
-    // Mobile keyboard handling - prevent viewport shift
-    if (window.innerWidth <= 768) {
-        const editor = document.getElementById('editor');
-        
-        // When editor gets focus, add class to body
-        editor.addEventListener('focus', () => {
-            document.body.classList.add('keyboard-open');
-        });
-        
-        // When editor loses focus, remove class
-        editor.addEventListener('blur', () => {
-            document.body.classList.remove('keyboard-open');
-        });
-        
-        // Scroll editor to cursor position when typing
-        editor.addEventListener('input', () => {
-            if (document.activeElement === editor) {
-                editor.scrollTop = editor.scrollHeight;
-            }
-        });
-    }
-});
-
 // Draggable Logic - supports both horizontal and vertical
 const workspace = document.getElementById('workspaceContainer');
 const dragBar = document.getElementById('dragBar');
@@ -50,7 +7,10 @@ let isDragging = false;
 
 if (dragBar) {
     dragBar.addEventListener('mousedown', () => isDragging = true);
-    dragBar.addEventListener('touchstart', () => isDragging = true);
+    dragBar.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        e.preventDefault(); // Prevent default touch behavior
+    });
     
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
@@ -59,9 +19,10 @@ if (dragBar) {
     
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
+        e.preventDefault(); // Prevent scrolling while dragging
         const touch = e.touches[0];
         handleResize(touch.clientX, touch.clientY);
-    });
+    }, { passive: false }); // Allow preventDefault
     
     document.addEventListener('mouseup', () => isDragging = false);
     document.addEventListener('touchend', () => isDragging = false);
@@ -72,17 +33,17 @@ function handleResize(clientX, clientY) {
     const isMobile = window.innerWidth <= 768;
 
     if (isMobile) {
-        // Vertical Resize for Mobile
-        let perc = ((clientY - rect.top) / rect.height) * 100;
-        perc = Math.max(10, Math.min(90, perc));
-        workspace.style.gridTemplateColumns = "1fr"; // Reset columns
-        workspace.style.gridTemplateRows = `${perc}% 6px 1fr`;
-    } else {
-        // Horizontal Resize for PC
+        // Horizontal split on mobile, but vertical drag to resize left/right panels
         let perc = ((clientX - rect.left) / rect.width) * 100;
-        perc = Math.max(15, Math.min(85, perc));
-        workspace.style.gridTemplateRows = "1fr"; // Reset rows
+        perc = Math.max(5, Math.min(95, perc));
         workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+        workspace.style.gridTemplateRows = "1fr";
+    } else {
+        // Horizontal split on PC with horizontal drag
+        let perc = ((clientX - rect.left) / rect.width) * 100;
+        perc = Math.max(5, Math.min(95, perc));
+        workspace.style.gridTemplateColumns = `${perc}% 6px 1fr`;
+        workspace.style.gridTemplateRows = "1fr";
     }
 }
 
@@ -104,6 +65,7 @@ window.onclick = function(event) {
 
 function resetSplit() { 
     workspace.style.gridTemplateColumns = "1fr 6px 1fr"; 
+    workspace.style.gridTemplateRows = "1fr";
 }
 
 // Theme Toggle Function
