@@ -689,7 +689,7 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
 
 
     
-    /* Toggle button always visible on mobile */
+/* Toggle button always visible on mobile */
     #sidebarToggle {
         left: 0;
         z-index: 999;
@@ -835,8 +835,8 @@ body.light-theme .note-item:hover .note-title[data-title]::before {
     .note-item:hover .note-title[data-title]::before {
         display: none;
     }
-}
 
+    
 /* Small mobile - 480px and below */
 @media (max-width: 480px) {
     header {
