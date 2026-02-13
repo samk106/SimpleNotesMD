@@ -297,28 +297,62 @@ function saveCurrentNote() {
 
 function deleteNote(noteId) {
     if (!confirm("Delete this note?")) return;
-    db.transaction("notes", "readwrite").objectStore("notes").delete(noteId).onsuccess = () => { 
-        if (currentNoteId === noteId) {
-            currentNoteId = null;
-            loadLastNote();
-        }
-        renderSidebar(); 
+    
+    // Get note info before deleting (for GitHub sync)
+    const tx = db.transaction("notes", "readonly");
+    const getRequest = tx.objectStore("notes").get(noteId);
+    
+    getRequest.onsuccess = () => {
+        const noteToDelete = getRequest.result;
+        
+        // Delete from IndexedDB
+        db.transaction("notes", "readwrite").objectStore("notes").delete(noteId).onsuccess = () => { 
+            if (currentNoteId === noteId) {
+                currentNoteId = null;
+                loadLastNote();
+            }
+            renderSidebar();
+            
+            // Sync deletion to GitHub
+            if (githubConfig.connected && noteToDelete) {
+                deleteNoteFromGitHub(noteToDelete).catch(err => {
+                    console.error('Failed to delete note from GitHub:', err);
+                });
+            }
+        };
     };
 }
 
 function deleteAllNotes() {
     if (!confirm("Delete ALL notes? This action cannot be undone!")) return;
-    const tx = db.transaction("notes", "readwrite");
-    const store = tx.objectStore("notes");
-    const clearRequest = store.clear();
     
-    clearRequest.onsuccess = () => {
-        currentNoteId = null;
-        document.getElementById('editor').value = '';
-        document.getElementById('preview').innerHTML = '';
-        document.getElementById('displayTitle').innerText = 'Welcome';
-        renderSidebar();
-        alert("All notes have been deleted.");
+    // Get all notes before deleting (for GitHub sync)
+    const getAllTx = db.transaction("notes", "readonly");
+    const getAllRequest = getAllTx.objectStore("notes").getAll();
+    
+    getAllRequest.onsuccess = () => {
+        const allNotes = getAllRequest.result;
+        
+        // Delete all from IndexedDB
+        const tx = db.transaction("notes", "readwrite");
+        const store = tx.objectStore("notes");
+        const clearRequest = store.clear();
+        
+        clearRequest.onsuccess = () => {
+            currentNoteId = null;
+            document.getElementById('editor').value = '';
+            document.getElementById('preview').innerHTML = '';
+            document.getElementById('displayTitle').innerText = 'Welcome';
+            renderSidebar();
+            alert("All notes have been deleted.");
+            
+            // Sync deletions to GitHub
+            if (githubConfig.connected && allNotes.length > 0) {
+                deleteAllNotesFromGitHub(allNotes).catch(err => {
+                    console.error('Failed to delete notes from GitHub:', err);
+                });
+            }
+        };
     };
 }
 
@@ -850,13 +884,18 @@ async function manualSync() {
 
 // Perform sync
 async function performSync() {
-    const notes = await getAllNotes();
+    const localNotes = await getAllNotes();
+    const localNotePaths = new Set();
     
-    for (const note of notes) {
-        const content = note.content || '';
-        const path = `notes/${note.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.md`;
+    // Upload/Update all local notes
+    for (const note of localNotes) {
+        const filename = note.title.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '.md';
+        const path = `notes/${filename}`;
+        localNotePaths.add(path);
         
         try {
+            const content = note.content || '';
+            
             // Check if file exists
             const fileResponse = await fetch(
                 `https://api.github.com/repos/${githubConfig.username}/${githubConfig.repo}/contents/${path}`,
@@ -885,6 +924,87 @@ async function performSync() {
         } catch (error) {
             console.error(`Failed to sync note ${note.title}:`, error);
         }
+    }
+    
+    // Delete notes from GitHub that don't exist locally anymore
+    try {
+        const repoResponse = await fetch(
+            `https://api.github.com/repos/${githubConfig.username}/${githubConfig.repo}/contents/notes`,
+            { headers: { 'Authorization': `token ${githubConfig.token}` }}
+        );
+        
+        if (repoResponse.ok) {
+            const repoFiles = await repoResponse.json();
+            
+            for (const file of repoFiles) {
+                if (file.type === 'file' && file.name.endsWith('.md')) {
+                    const filePath = file.path;
+                    
+                    // If file is not in local notes, delete it
+                    if (!localNotePaths.has(filePath)) {
+                        await fetch(
+                            `https://api.github.com/repos/${githubConfig.username}/${githubConfig.repo}/contents/${filePath}`,
+                            {
+                                method: 'DELETE',
+                                headers: {
+                                    'Authorization': `token ${githubConfig.token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    message: `Delete ${file.name}`,
+                                    sha: file.sha
+                                })
+                            }
+                        );
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Failed to check for deleted notes:', error);
+    }
+}
+
+// Delete single note from GitHub
+async function deleteNoteFromGitHub(note) {
+    const filename = note.title.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '.md';
+    const path = `notes/${filename}`;
+    
+    try {
+        // Get file SHA
+        const fileResponse = await fetch(
+            `https://api.github.com/repos/${githubConfig.username}/${githubConfig.repo}/contents/${path}`,
+            { headers: { 'Authorization': `token ${githubConfig.token}` }}
+        );
+        
+        if (fileResponse.ok) {
+            const fileData = await fileResponse.json();
+            
+            // Delete file
+            await fetch(
+                `https://api.github.com/repos/${githubConfig.username}/${githubConfig.repo}/contents/${path}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `token ${githubConfig.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Delete ${note.title}`,
+                        sha: fileData.sha
+                    })
+                }
+            );
+        }
+    } catch (error) {
+        console.error(`Failed to delete note from GitHub: ${note.title}`, error);
+    }
+}
+
+// Delete all notes from GitHub
+async function deleteAllNotesFromGitHub(notes) {
+    for (const note of notes) {
+        await deleteNoteFromGitHub(note);
     }
 }
 
